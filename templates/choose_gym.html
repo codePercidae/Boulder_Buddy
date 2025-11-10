@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+
+<html>
+    <body>
+        <h2>Valitse sali jossa kiipeät:</h2>
+        <form action="/choose_route", method="post">
+            {% for gym in gyms %}
+            <input type="radio" name="gym" value={{gym['id']}}>{{gym['name']}}<br/>
+            {% endfor %}
+            <input type="submit">Seuraava
+        </form>
+    </body>
+</html>

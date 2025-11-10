@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+
+<html>
+    <body>
+        <h2>Valitse reitti</h2>
+        <form action="/route_climbed" method="post">
+            {% for route in routes %}
+                <input type="radio" name="route" value={{route['id']}}>{{route['name']}} {{route['grade']}}
+            {% endfor %}
+            <input type="submit">
+        </form>
+    </body>
+</html>

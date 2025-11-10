@@ -56,6 +56,20 @@ def verify():
     else:
         return "Virheelliset käyttäjätunnukset!"
     
-@app.route("/add_route")
-def add_route():
-    return render_template("add_route.html")
+@app.route("/choose_gym")
+def choose_gym():
+    gyms = db.query_all("SELECT * FROM gyms")
+    return render_template("choose_gym.html", gyms=gyms)
+
+@app.route("/choose_route", methods=["POST"])
+def choose_route():
+    gym_id = request.form["gym"]
+    print(gym_id)
+    routes = db.query_all("SELECT id, name, grade FROM routes WHERE gym_id = (?)", [gym_id])
+    return render_template("choose_route.html", routes=routes)
+
+@app.route("/route_climbed", methods=["POST"])
+def route_climbed():
+    route_id = request.form["route"]
+    db.exec("INSERT INTO climbed (user_id, route_id) VALUES (?, ?)", [route_id, session['id']])
+    return "Reitti lisätty"
