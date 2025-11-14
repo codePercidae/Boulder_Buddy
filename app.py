@@ -3,9 +3,20 @@ from flask import render_template, request, redirect, session
 from werkzeug.security import check_password_hash, generate_password_hash
 import db
 import config
+import create_test_data
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
+
+@app.cli.command("create-test-data")
+def test():
+    create_test_data
+    print("Test data created")
+
+@app.cli.command("delete-all")
+def delete_all():
+    db.delete_all()
+    print("Database deleted!")
 
 @app.route("/")
 def index():

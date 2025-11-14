@@ -25,3 +25,12 @@ def query_some(sql, amount, params=[]):
     res = db.execute(sql, params).fetchmany(amount)
     db.close()
     return res
+
+def delete_all():
+    db = get_connection()
+    db.execute('DELETE FROM users')
+    db.execute('DELETE FROM routes')
+    db.execute('DELETE FROM gyms')
+    db.execute('DELETE FROM climbed')
+    db.commit()
+    db.close()
