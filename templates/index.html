@@ -14,7 +14,7 @@
 			<a href="/logout">Kirjaudu ulos</a>
 		</p>
 		<h2>Viimeksi kiivetyt reitit</h2>
-		{% for route in session.routes %}
+		{% for route in latest%}
 			<li>{{route}}</li>
 		{% endfor %}
 		<a href="/choose_gym">Lisää kiivetty reitti</a>

@@ -25,7 +25,16 @@ def init_db():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    latest = []
+    if "user" in session.keys():
+        res = db.query_some(
+            """SELECT routes.name, routes.grade 
+            FROM routes, climbed 
+            WHERE climbed.user_id = (SELECT id FROM users WHERE username = (?))
+            AND routes.id = climbed.route_id""",
+            10, [session['user']])
+        latest = [f'{r["name"]} {r["grade"]}' for r in res]
+    return render_template("index.html", latest=latest)
 
 @app.route("/signup")
 def signup():
@@ -65,7 +74,6 @@ def verify():
     res = db.query_all("SELECT id, password FROM users WHERE username = ?", [username])
     if res and check_password_hash(res[0]['password'], password):
         session['user'] = username
-        #session['latest_routes'] = db.query_some("SELECT route_id FROM users WHERE user_id = ?", [session['id']], 10)
         return redirect("/")
     else:
         return "Virheelliset käyttäjätunnukset!"
@@ -88,4 +96,4 @@ def route_climbed():
     user_id = db.query_all("SELECT id FROM users WHERE username = (?)", [session['user']])[0]['id']
     print(user_id, route_id)
     db.exec("INSERT INTO climbed (user_id, route_id) VALUES (?, ?)", [user_id, route_id])
-    return "Reitti lisätty"
+    return redirect("/")
