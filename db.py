@@ -1,6 +1,11 @@
 import sqlite3
+from os import system
 from flask import g #why tho?
 
+def init_db():
+    system('touch boulder.db')
+    system("sqlite3 boulder.db < schema.sql")
+    
 def get_connection():
     db = sqlite3.connect("boulder.db")
     db.execute("PRAGMA foreign_keys = ON")
