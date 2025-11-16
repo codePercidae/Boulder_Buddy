@@ -1,4 +1,4 @@
-# Boulder-sovellus
+# Boulder-Buddy
 
 Sovellus jolla käyttäjä voi:
 - Luoda tunnuksen ja kirjautua sisään
@@ -46,10 +46,10 @@ Tarvittaessa tietokannan saa puhdistettua kokonaan komennolla:
 - Käyttäjä voi merkitä reitin kiivetyksi
 - Käyttäjä näkee 10 kiipeämäänsä reittiä etusivulla (tarkoituksena olla viimeisimmät 10 kiivettyä, mutta ei ollut aikaa viedä sitä loppuun ennen palautusta)
 
-## HUOM
+## HUOM!
 Jos syystä tai toisesta flask skriptit eivät toimi, tee seuraava:
 
 1. Luo juurihakemistoon tiedosto boulder.db
 2. Aja komento `sqlite3 boulder.db < schema.sql`
 3. Aja komento `python3 seed.py`
-4. Suorita funktio test()
+4. Suorita funktio `test()`
