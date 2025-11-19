@@ -5,6 +5,7 @@ import db
 import config
 import seed
 from datetime import date
+import users
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -73,7 +74,7 @@ def create():
     else:
         phash = generate_password_hash(password1)
         try:
-            db.exec("INSERT INTO users (username, password) VALUES (?, ?)", [username, phash])
+            users.create_user(username, phash)
             return "Käyttäjätunnus luotu, ole hyvä ja kirjaudu sisään."
         except:
             return "Käyttäjätunnus varattu!"
@@ -83,8 +84,8 @@ def verify():
     username = request.form["username"]
     password = request.form["password"]
 
-    res = db.query_all("SELECT id, password FROM users WHERE username = ?", [username])
-    if res and check_password_hash(res[0]['password'], password):
+    res = users.get_password(username)
+    if res and check_password_hash(res, password):
         session['user'] = username
         return redirect("/")
     else:
@@ -104,13 +105,13 @@ def choose_route():
 @app.route("/route_climbed", methods=["POST"])
 def route_climbed():
     route_id = request.form["route"]
-    user_id = db.query_all("SELECT id FROM users WHERE username = (?)", [session['user']])[0]['id']
+    user_id = users.get_user_id(session["user"])
     db.exec("INSERT INTO climbed (user_id, route_id, date) VALUES (?, ?, ?)", [user_id, route_id, date.today()])
     return redirect("/")
 
 @app.route("/stats")
 def stats():
-    user_id = db.query_all("SELECT id FROM users WHERE username = (?)", [session['user']])[0]['id']
+    user_id = users.get_user_id(session["user"])
     total = db.query_all("SELECT COUNT(*) FROM climbed WHERE user_id = (?)", [user_id])[0]["COUNT(*)"]
 
     average_float = db.query_all("""SELECT AVG(routes.grade)
@@ -119,6 +120,7 @@ def stats():
                             AND climbed.user_id = (?)""", [user_id])[0]["AVG(routes.grade)"]
     average = int_to_grade[round(average_float)]
     
+    #Palauttaa salin id:n, ei 
     favourite = db.query_all("""SELECT MAX(route_by_gym) 
                             FROM (SELECT COUNT(*) route_by_gym FROM routes, climbed 
                             WHERE routes.id = climbed.route_id 
