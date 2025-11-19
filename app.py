@@ -5,7 +5,10 @@ import db
 import config
 import seed
 from datetime import date
-import users
+import users as u
+import misc as m
+import routes as r
+import gyms as g
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -25,27 +28,11 @@ def init_db():
     db.init_db()
     print("Database initiated!")
 
-grade_to_int = { "4" : 1, "4+" : 2, "5" : 3, "5+" : 4,
-                "6A" : 5, "6A+" : 6, "6B" : 7, "6B+" : 8,
-                "6C" : 9, "6C+" : 10, "7A" : 11, "7A+" : 12,
-                "7B" : 13, "7B+" : 14, "7C" : 15, "7C+" : 16 }
-
-int_to_grade = { 1:"4", 2:"4+", 3:"5", 4:"5+", 5:"6A", 6:"6A+",
-                7:"6B", 8:"6B+", 9:"6C", 10:"6C+", 11:"7A",
-                12:"7A+", 13:"7B", 14:"7B+", 15:"7C", 16:"7C+"}
-
-
 @app.route("/")
 def index():
     latest = []
     if "user" in session.keys():
-        res = db.query_some(
-            """SELECT routes.name, routes.grade 
-            FROM routes, climbed 
-            WHERE climbed.user_id = (SELECT id FROM users WHERE username = (?))
-            AND routes.id = climbed.route_id
-            ORDER BY climbed.date DESC""",
-            10, [session['user']])
+        res = r.get_routes_by_climber(session["user"])
         latest = [f'{r["name"]} {r["grade"]}' for r in res]
     return render_template("index.html", latest=latest)
 
@@ -74,7 +61,7 @@ def create():
     else:
         phash = generate_password_hash(password1)
         try:
-            users.create_user(username, phash)
+            u.create_user(username, phash)
             return "Käyttäjätunnus luotu, ole hyvä ja kirjaudu sisään."
         except:
             return "Käyttäjätunnus varattu!"
@@ -84,7 +71,7 @@ def verify():
     username = request.form["username"]
     password = request.form["password"]
 
-    res = users.get_password(username)
+    res = u.get_password(username)
     if res and check_password_hash(res, password):
         session['user'] = username
         return redirect("/")
@@ -93,36 +80,30 @@ def verify():
     
 @app.route("/choose_gym")
 def choose_gym():
-    gyms = db.query_all("SELECT * FROM gyms")
+    gyms = g.get_gyms()
     return render_template("choose_gym.html", gyms=gyms)
 
 @app.route("/choose_route", methods=["POST"])
 def choose_route():
     gym_id = request.form["gym"]
-    routes = db.query_all("SELECT id, name, grade FROM routes WHERE gym_id = (?)", [gym_id])
+    routes = r.get_routes_by_gym(gym_id)
     return render_template("choose_route.html", routes=routes)
 
 @app.route("/route_climbed", methods=["POST"])
 def route_climbed():
     route_id = request.form["route"]
-    user_id = users.get_user_id(session["user"])
-    db.exec("INSERT INTO climbed (user_id, route_id, date) VALUES (?, ?, ?)", [user_id, route_id, date.today()])
+    user_id = u.get_user_id(session["user"])
+    r.mark_route_as_climbed(user_id, route_id)
     return redirect("/")
 
 @app.route("/stats")
 def stats():
-    user_id = users.get_user_id(session["user"])
-    total = db.query_all("SELECT COUNT(*) FROM climbed WHERE user_id = (?)", [user_id])[0]["COUNT(*)"]
+    user_id = u.get_user_id(session["user"])
+    total = r.total_routes_by_user(user_id)
 
-    average_float = db.query_all("""SELECT AVG(routes.grade)
-                            FROM climbed, routes 
-                            WHERE routes.id = climbed.route_id
-                            AND climbed.user_id = (?)""", [user_id])[0]["AVG(routes.grade)"]
-    average = int_to_grade[round(average_float)]
-    
+    average_float = r.average_grade_by_user(user_id)
+    average = m.int_to_grade[round(average_float)]
+
     #Palauttaa salin id:n, ei 
-    favourite = db.query_all("""SELECT MAX(route_by_gym) 
-                            FROM (SELECT COUNT(*) route_by_gym FROM routes, climbed 
-                            WHERE routes.id = climbed.route_id 
-                            AND climbed.user_id = (?) GROUP BY routes.gym_id)""", [user_id])[0]["MAX(route_by_gym)"]
+    favourite = g.get_favourite_gym(user_id)
     return render_template("stats.html", total=total, average=average, favourite=favourite)
