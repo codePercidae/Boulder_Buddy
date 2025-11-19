@@ -8,6 +8,7 @@ CREATE TABLE routes (
     id INTEGER PRIMARY KEY,
     name TEXT,
     grade TEXT,
+    grade_int INTEGER,
     gym_id INTEGER REFERENCES gyms
 );
 

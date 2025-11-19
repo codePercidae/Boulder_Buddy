@@ -2,10 +2,10 @@ from random import randint
 import sqlite3
 
 def test():
-    grade_table = { 1 : '4', 2 : '4+', 3 : '5', 4 : '5+',
-        5 : '6A', 6 : '6A+', 7 : '6B', 8 : '6B+',
-        9 : '6C', 10 : '6C+', 11 : '7A', 12 : '7A+',
-        13 : '7B', 14 : '7B+', 15 : '7C', 16 : '7C+' }
+
+    int_to_grade = { 1:"4", 2:"4+", 3:"5", 4:"5+", 5:"6A", 6:"6A+",
+                    7:"6B", 8:"6B+", 9:"6C", 10:"6C+", 11:"7A",
+                    12:"7A+", 13:"7B", 14:"7B+", 15:"7C", 16:"7C+"}
 
     db = sqlite3.connect('boulder.db')
 
@@ -25,8 +25,9 @@ def test():
         db.execute("INSERT INTO gyms (name) VALUES (?)", ["gym" + str(i)])
 
     for i in range(1, route_count + 1):
-        db.execute("INSERT INTO routes (name, grade, gym_id) VALUES (?, ?, ?)",
-                ["route" + str(i), grade_table[randint(1, 16)], randint(1, gym_count)])
+        route_int = randint(1, 16)
+        db.execute("INSERT INTO routes (name, grade, grade_int, gym_id) VALUES (?, ?, ?, ?)",
+                ["route" + str(i), int_to_grade[route_int], route_int, randint(1, gym_count)])
         
     db.commit()
     db.close()
