@@ -1,10 +1,9 @@
 from flask import Flask
-from flask import render_template, request, redirect, session
+from flask import render_template, request, redirect, session, flash
 from werkzeug.security import check_password_hash, generate_password_hash
 import db
 import config
 import seed
-from datetime import date
 import users as u
 import misc as m
 import routes as r
@@ -56,27 +55,35 @@ def create():
     password2 = request.form["password2"]
 
     if password1 != password2:
-        return "Salasanat eivät täsmää!"
-
+        flash("Salasanat eivät täsmää!")
+        return redirect("/signup")
+    
+    elif len(password1) < 4 or len(username) < 4:
+        flash("Salasana tai käyttäjätunnus liian lyhyt!")
+        return redirect("/signup")
     else:
         phash = generate_password_hash(password1)
         try:
             u.create_user(username, phash)
-            return "Käyttäjätunnus luotu, ole hyvä ja kirjaudu sisään."
+            flash("Käyttäjätunnus luotu, ole hyvä ja kirjaudu sisään.")
+            return redirect("/")
         except:
-            return "Käyttäjätunnus varattu!"
+            flash("Käyttäjätunnus varattu!")
+            return redirect("/signup")
         
 @app.route("/verify", methods=["POST"])
 def verify():
     username = request.form["username"]
     password = request.form["password"]
 
-    res = u.get_password(username)
-    if res and check_password_hash(res, password):
-        session['user'] = username
-        return redirect("/")
-    else:
-        return "Virheelliset käyttäjätunnukset!"
+    try:
+        res = u.get_password(username)
+        if res and check_password_hash(res, password):
+            session['user'] = username
+            return redirect("/")
+    except:
+        flash("Virheelliset käyttäjätunnukset!")
+        return redirect("/signin")
     
 @app.route("/choose_gym")
 def choose_gym():

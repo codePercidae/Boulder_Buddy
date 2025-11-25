@@ -4,9 +4,14 @@
 		<title>Luo tunnus</title>
     </head>
 
+	{% for message in get_flashed_messages() %}
+	<p>
+		<b>{{ message }}</b>
+	</p>
+	{% endfor %}
+
     <body>
         <h2>Luo tunnus</h2>
-		<p>{{ message }}</p>
 		<form action="/create" method="post">
 	    	<p>
 	        	Anna käyttäjätunnus:
