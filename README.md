@@ -6,9 +6,22 @@ Sovellus jolla käyttäjä voi:
 - Tarkastella muiden suorittamia reittejä
 - Luokitella tehtyjä reittejä, vaikeuden, salin, yms. mukaan
 
-## Sovelluksen asennus
+## Sovelluksen asennus ja käyttöönotto
 
-Aloita asentamalla flask-kirjasto
+Aloita asentamalla venv (varmista että käytössäsi on python3):
+
+```
+$ python3 venv venv
+``` 
+
+Käynnistä virtuaaliympäristö:
+
+```
+$ source venv/bin/activate
+```
+
+
+Asenna flask-kirjasto
 
 ```
     $ pip install flask
