@@ -5,10 +5,11 @@ def get_routes_by_gym(gym_id):
     return db.query_all("SELECT id, name, grade FROM routes WHERE gym_id = (?)", [gym_id])
 
 def get_routes_by_climber(user_id):
-    return db.query_some("""SELECT routes.id, routes.name, routes.grade 
-        FROM routes, climbed 
+    return db.query_some("""SELECT routes.id, routes.name, routes.grade, gyms.name AS gym
+        FROM routes, climbed, gyms
         WHERE climbed.user_id = (?)
         AND routes.id = climbed.route_id
+        AND gyms.id = routes.gym_id
         ORDER BY climbed.date DESC""", 10, [user_id])
 
 def mark_route_as_climbed(user_id, route_id):
@@ -16,8 +17,8 @@ def mark_route_as_climbed(user_id, route_id):
         [user_id, route_id, date.today()])
       
 def total_routes_by_user(user_id):
-    return db.query_all("SELECT COUNT(*) FROM climbed WHERE user_id = (?)",
-        [user_id])[0]["COUNT(*)"]
+    return db.query_all("SELECT COUNT(route_id) FROM climbed WHERE user_id = (?)",
+        [user_id])[0]["COUNT(route_id)"]
 
 def average_grade_by_user(user_id):
     return db.query_all("""SELECT AVG(routes.grade_int)

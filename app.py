@@ -142,3 +142,15 @@ def delete():
     r.delete_from_climbed(session["user_id"], route_id)
     flash("Reitti poistettu kiivetyistä!")
     return redirect("/stats")
+
+@app.route("/user/<int:user_id>")
+def show_user(user_id):
+    name = u.get_username(user_id)
+    routes = r.get_routes_by_climber(user_id)
+    return render_template("/user.html", routes=routes, username=name)
+
+@app.route("/search_user", methods=["GET", "POST"])
+def search_user():
+    query = request.args.get("query")
+    res = u.search_users(query) if query else []
+    return render_template("search_user.html", users = res)

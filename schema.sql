@@ -16,6 +16,7 @@ CREATE TABLE climbed (
     user_id INTEGER REFERENCES users,
     route_id INTEGER REFERENCES routes,
     date TEXT
+    UNIQUE(user_id, route_id)
 );
 
 CREATE TABLE gyms (

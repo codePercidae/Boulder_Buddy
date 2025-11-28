@@ -29,5 +29,9 @@ def test():
         db.execute("INSERT INTO routes (name, grade, grade_int, gym_id) VALUES (?, ?, ?, ?)",
                 ["route" + str(i), int_to_grade[route_int], route_int, randint(1, gym_count)])
         
+    for i in range(10000):
+        db.execute("INSERT INTO climbed (route_id, user_id) VALUES (?, ?)",
+                [randint(1, user_count), randint(1, route_count)])
+        
     db.commit()
     db.close()

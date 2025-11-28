@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+
+<html>
+    <body>
+        <h1>Käyttäjä {{ username }}</h1>
+
+        {% for route in routes %}
+        <li>{{route["name"]}} {{route["grade"]}} {{route["gym"]}}</li>
+        {% endfor %}
+    </body>
+</html>
