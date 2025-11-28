@@ -1,6 +1,7 @@
 from flask import Flask
-from flask import render_template, request, redirect, session, flash
+from flask import render_template, request, redirect, session, flash, abort
 from werkzeug.security import check_password_hash, generate_password_hash
+from secrets import token_hex
 import db
 import config
 import seed
@@ -27,11 +28,19 @@ def init_db():
     db.init_db()
     print("Database initiated!")
 
+def require_login():
+    if "user_id" not in session:
+        abort(403)
+
+def check_token():
+    if request.form["csrf_token"] != session["csrf_token"]:
+        abort(403)
+
 @app.route("/")
 def index():
     latest = []
-    if "user" in session.keys():
-        res = r.get_routes_by_climber(session["user"])
+    if "user_id" in session.keys():
+        res = r.get_routes_by_climber(session["user_id"])
         latest = [f'{r["name"]} {r["grade"]}' for r in res]
     return render_template("index.html", latest=latest)
 
@@ -46,6 +55,7 @@ def signin():
 @app.route("/logout")
 def logout():
     del session["user"]
+    del session["user_id"]
     return redirect("/")
 
 @app.route("/create", methods=["POST"])
@@ -60,6 +70,9 @@ def create():
     
     elif len(password1) < 4 or len(username) < 4:
         flash("Salasana tai käyttäjätunnus liian lyhyt!")
+        return redirect("/signup")
+    elif len(username) > 20 or len(password1) > 20:
+        flash("Salasana tai käyttäjätunnus liian pitkä!")
         return redirect("/signup")
     else:
         phash = generate_password_hash(password1)
@@ -77,9 +90,12 @@ def verify():
     password = request.form["password"]
 
     try:
-        res = u.get_password(username)
-        if res and check_password_hash(res, password):
+        phash = u.get_password(username)
+        id = u.get_user_id(username)
+        if phash and check_password_hash(phash, password):
             session['user'] = username
+            session['user_id'] = id
+            session['csrf_token'] = token_hex(16)
             return redirect("/")
     except:
         flash("Virheelliset käyttäjätunnukset!")
@@ -98,19 +114,31 @@ def choose_route():
 
 @app.route("/route_climbed", methods=["POST"])
 def route_climbed():
+    require_login()
     route_id = request.form["route"]
-    user_id = u.get_user_id(session["user"])
-    r.mark_route_as_climbed(user_id, route_id)
+    r.mark_route_as_climbed(session["user_id"], route_id)
+    flash("Reitti merkitty kiivetyksi!")
     return redirect("/")
 
 @app.route("/stats")
 def stats():
-    user_id = u.get_user_id(session["user"])
-    total = r.total_routes_by_user(user_id)
+    require_login()
+    user_routes = r.get_routes_by_climber(session["user_id"])
+    total = r.total_routes_by_user(session["user_id"])
+    if total > 0:
+        average_float = r.average_grade_by_user(session["user_id"])
+        average = m.int_to_grade[round(average_float)]
 
-    average_float = r.average_grade_by_user(user_id)
-    average = m.int_to_grade[round(average_float)]
+        #Palauttaa salin id:n, ei nimeä
+        favourite = g.get_favourite_gym(session["user_id"])
+        
+    return render_template("stats.html", total=total,
+                        average=average, favourite=favourite, routes=user_routes)
 
-    #Palauttaa salin id:n, ei 
-    favourite = g.get_favourite_gym(user_id)
-    return render_template("stats.html", total=total, average=average, favourite=favourite)
+@app.route("/delete", methods=["POST"])
+def delete():
+    require_login()
+    route_id = request.form["route_id"]
+    r.delete_from_climbed(session["user_id"], route_id)
+    flash("Reitti poistettu kiivetyistä!")
+    return redirect("/stats")
