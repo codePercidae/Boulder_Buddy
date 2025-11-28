@@ -3,10 +3,27 @@
 <html>
     <body>
         <h1>Tilastot</h1>
+
+        {% for message in get_flashed_messages() %}
+        <p>
+            <b>{{ message }}</b>
+        </p>
+        {% endfor %}
         <p>
             <b>Reittejä kiivetty yhteensä</b> {{total}} <br />
             <b>Keskiarvoinen vaikeusaste</b> {{average}} <br />
             <b>Lempisali</b> {{favourite}} <br />
         </p>
+
+        <h2>Kiivetyt reitit</h2>
+        <form action="/delete" method="post">
+            {% for route in routes %}
+            <p>
+                {{ route["name"] }} {{ route["grade"] }} {{ route["id"]}}
+                <input type="hidden" name="route_id" value={{ route["id"] }} />
+                <button type="submit">Poista</button>
+            </p>
+            {% endfor %}
+        </form>
     </body>
 </html>
