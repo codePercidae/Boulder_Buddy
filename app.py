@@ -133,7 +133,7 @@ def stats():
         favourite = g.get_favourite_gym(session["user_id"])
         
     return render_template("stats.html", total=total,
-                        average=average, favourite=favourite, routes=user_routes)
+        average=average, favourite=favourite, routes=user_routes)
 
 @app.route("/delete", methods=["POST"])
 def delete():
@@ -149,7 +149,7 @@ def show_user(user_id):
     routes = r.get_routes_by_climber(user_id)
     return render_template("/user.html", routes=routes, username=name)
 
-@app.route("/search_user", methods=["GET", "POST"])
+@app.route("/search_user")
 def search_user():
     query = request.args.get("query")
     res = u.search_users(query) if query else []

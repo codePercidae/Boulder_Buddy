@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+
+<html>
+    <body>
+        <h1>Etsi käyttäjiä</h1>
+        <a href="/">Palaa etusivulle</a>
+        <form action="/search_user" method="get">
+            <input type="text" name="query"/>
+            <input type="submit"/>
+        </form>
+        {% for user in users %}
+        <a href="/user/{{user["id"]}}">{{user["username"]}}</a>
+        {% endfor %}
+    </body>
+</html>
