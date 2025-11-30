@@ -125,6 +125,8 @@ def stats():
     require_login()
     user_routes = r.get_routes_by_climber(session["user_id"])
     total = r.total_routes_by_user(session["user_id"])
+    average = 0
+    favourite = "Ei tietoa"
     if total > 0:
         average_float = r.average_grade_by_user(session["user_id"])
         average = m.int_to_grade[round(average_float)]
