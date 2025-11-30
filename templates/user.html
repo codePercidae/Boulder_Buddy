@@ -5,6 +5,7 @@
         <a href="/">Palaa etusivulle</a>
         <h1>Käyttäjä {{ username }}</h1>
 
+        <h2>Kiivetyt reitit:</h2>
         {% for route in routes %}
         <li>{{route["name"]}} {{route["grade"]}} {{route["gym"]}}</li>
         {% endfor %}
