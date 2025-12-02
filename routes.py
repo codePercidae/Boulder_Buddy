@@ -12,9 +12,9 @@ def get_routes_by_climber(user_id):
         AND gyms.id = routes.gym_id
         ORDER BY climbed.date DESC""", 10, [user_id])
 
-def mark_route_as_climbed(user_id, route_id):
-    db.exec("INSERT INTO climbed (user_id, route_id, date) VALUES (?, ?, ?)",
-        [user_id, route_id, date.today()])
+def mark_route_as_climbed(user_id, route_id, comment):
+    db.exec("INSERT INTO climbed (user_id, route_id, date, comment) VALUES (?, ?, ?, ?)",
+        [user_id, route_id, date.today(), comment])
       
 def total_routes_by_user(user_id):
     return db.query_all("SELECT COUNT(route_id) FROM climbed WHERE user_id = (?)",

@@ -7,6 +7,8 @@
             {% for route in routes %}
                 <input type="radio" name="route" value={{route['id']}}>{{route['name']}} {{route['grade']}}<br />
             {% endfor %}
+            <p>Lisää kommentti</p>
+            <input type="text" name="comment"> 
             <input type="submit">
         </form>
     </body>

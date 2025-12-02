@@ -15,7 +15,8 @@ CREATE TABLE routes (
 CREATE TABLE climbed (
     user_id INTEGER REFERENCES users,
     route_id INTEGER REFERENCES routes,
-    date TEXT
+    date TEXT,
+    comment TEXT,
     UNIQUE(user_id, route_id)
 );
 

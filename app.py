@@ -116,7 +116,8 @@ def choose_route():
 def route_climbed():
     require_login()
     route_id = request.form["route"]
-    r.mark_route_as_climbed(session["user_id"], route_id)
+    comment = request.form["comment"] 
+    r.mark_route_as_climbed(session["user_id"], route_id, comment)
     flash("Reitti merkitty kiivetyksi!")
     return redirect("/")
 
