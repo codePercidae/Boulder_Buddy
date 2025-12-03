@@ -56,6 +56,7 @@ def signin():
 def logout():
     del session["user"]
     del session["user_id"]
+    del session["csrf_token"]
     return redirect("/")
 
 @app.route("/create", methods=["POST"])
@@ -144,6 +145,23 @@ def delete():
     route_id = request.form["route_id"]
     r.delete_from_climbed(session["user_id"], route_id)
     flash("Reitti poistettu kiivetyistä!")
+    return redirect("/stats")
+
+@app.route("/update_comment/<int:route_id>", methods=["POST"])
+def update_comment(route_id):
+    res = r.get_climbed_route(route_id, session["user_id"])
+    print(res["id"])
+    return render_template("update_comment.html", route=res)
+
+@app.route("/update", methods=["POST"])
+def update():
+    route_id = request.form["route_id"]
+    new_comment = request.form["comment"]
+    if len(new_comment) > 50:
+        flash("Kommentti liian pitkä!")
+        redirect("/update_comment/" + route_id)
+    r.update_comment(session["user_id"], route_id, new_comment)
+    flash("Kommentti päivitetty!")
     return redirect("/stats")
 
 @app.route("/user/<int:user_id>")

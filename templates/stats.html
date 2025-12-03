@@ -3,6 +3,7 @@
 <html>
     <body>
         <h1>Tilastot</h1>
+        <a href="/">Etusivulle</a>
 
         {% for message in get_flashed_messages() %}
         <p>
@@ -19,9 +20,10 @@
         <form action="/delete" method="post">
             {% for route in routes %}
             <p>
-                {{ route["name"] }} {{ route["grade"] }} {{ route["id"]}}
+                {{ route["name"] }} {{ route["grade"] }} {{ route["comment"] }}
                 <input type="hidden" name="route_id" value={{ route["id"] }} />
                 <button type="submit">Poista</button>
+                <button name="route" type="submit" formaction="/update_comment/{{route["id"]}}">Muokkaa</button>
             </p>
             {% endfor %}
         </form>

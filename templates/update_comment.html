@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+
+<html>
+    <body>
+        {% for message in get_flashed_messages() %}
+        <p>
+            <b>{{ message }}</b>
+        </p>
+        {% endfor %}
+        <h2>Muokkaa kommenttia:</h2>
+        <form action="/update" method="post">
+            <input type="text" name="comment" value={{ route["comment"] }} />
+            <input type="submit" value="Lähetä"/>
+            <input type="hidden" name="route_id" value={{ route["id"] }} />
+        </form>
+    </body>
+</html>
