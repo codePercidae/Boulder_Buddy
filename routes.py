@@ -1,8 +1,11 @@
 import db
 from datetime import date
 
-def get_routes_by_gym(gym_id):
-    return db.query_all("SELECT id, name, grade FROM routes WHERE gym_id = (?)", [gym_id])
+def get_routes_by_gym(gym_id, user_id):
+    return db.query_all("""SELECT id, name, grade 
+        FROM routes WHERE gym_id = (?) 
+        AND id NOT IN 
+        (SELECT route_id FROM climbed where user_id = (?))""", [gym_id, user_id])
 
 def get_routes_by_climber(user_id):
     return db.query_some(

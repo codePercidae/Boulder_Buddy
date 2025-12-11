@@ -110,14 +110,17 @@ def choose_gym():
 @app.route("/choose_route", methods=["POST"])
 def choose_route():
     gym_id = request.form["gym"]
-    routes = r.get_routes_by_gym(gym_id)
+    routes = r.get_routes_by_gym(gym_id, session["user_id"])
     return render_template("choose_route.html", routes=routes)
 
 @app.route("/route_climbed", methods=["POST"])
 def route_climbed():
     require_login()
     route_id = request.form["route"]
-    comment = request.form["comment"] 
+    comment = request.form["comment"]
+    if len(comment) > 50:
+        flash("Kommentti liian pitkä!")
+        redirect("/choose_route")
     r.mark_route_as_climbed(session["user_id"], route_id, comment)
     flash("Reitti merkitty kiivetyksi!")
     return redirect("/")
@@ -150,7 +153,6 @@ def delete():
 @app.route("/update_comment/<int:route_id>", methods=["POST"])
 def update_comment(route_id):
     res = r.get_climbed_route(route_id, session["user_id"])
-    print(res["id"])
     return render_template("update_comment.html", route=res)
 
 @app.route("/update", methods=["POST"])
