@@ -9,7 +9,8 @@ def get_routes_by_gym(gym_id, user_id):
 
 def get_routes_by_climber(user_id):
     return db.query_some(
-        """SELECT routes.id, routes.name, routes.grade, climbed.comment, gyms.name AS gym
+        """SELECT routes.id, routes.name, routes.grade, 
+        climbed.comment, gyms.name AS gym
         FROM routes, climbed, gyms
         WHERE climbed.user_id = (?)
         AND routes.id = climbed.route_id
@@ -40,7 +41,8 @@ def update_comment(user_id, route_id, new_comment):
     print("wat")
 
 def get_climbed_route(route_id, user_id):
-    return db.query_all("""SELECT r.id AS id, r.name AS name, r.grade AS grade, c.comment AS comment 
+    return db.query_all(
+        """SELECT r.id AS id, r.name AS name, r.grade AS grade, c.comment AS comment 
         FROM routes r, climbed c
         WHERE r.id = (?) AND c.route_id = (?)
         AND c.user_id = (?)""", [route_id, route_id, user_id])[0]

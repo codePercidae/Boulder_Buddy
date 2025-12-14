@@ -70,10 +70,10 @@ def create():
         return redirect("/signup")
     
     elif len(password1) < 4 or len(username) < 4:
-        flash("Salasana tai käyttäjätunnus liian lyhyt!")
+        flash("Salasanan tai käyttäjätunnuksen on oltava vähintään 4 merkkiä pitkä!")
         return redirect("/signup")
     elif len(username) > 20 or len(password1) > 20:
-        flash("Salasana tai käyttäjätunnus liian pitkä!")
+        flash("Salasana tai käyttäjätunnus saa olla korkeintaan 20 merkkiä pitkä!")
         return redirect("/signup")
     else:
         phash = generate_password_hash(password1)
@@ -135,8 +135,6 @@ def stats():
     if total > 0:
         average_float = r.average_grade_by_user(session["user_id"])
         average = m.int_to_grade[round(average_float)]
-
-        #Palauttaa salin id:n, ei nimeä
         favourite = g.get_favourite_gym(session["user_id"])
         
     return render_template("stats.html", total=total,
